@@ -2,3 +2,14 @@
 *.las
 *.laz
 *.copc.laz
+
+#Raster files
+*.tif
+*.aux.xml
+
+# Data folders
+data/
+
+# Python
+__pycache__/
+*.pyc
