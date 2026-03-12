@@ -1,0 +1,1 @@
+{"pipeline": ["data/ground\\THANDALAM.las", {"type": "writers.gdal", "filename": "data/cog\\THANDALAM_DTM.tif", "resolution": 1.0, "output_type": "idw", "data_type": "float32"}]}
