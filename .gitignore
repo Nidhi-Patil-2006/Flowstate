@@ -1,0 +1,4 @@
+# LiDAR files
+*.las
+*.laz
+*.copc.laz
