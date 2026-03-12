@@ -6,10 +6,18 @@
 #Raster files
 *.tif
 *.aux.xml
+*.tiff
+*.tif.aux.xml
 
 # Data folders
 data/
 
+models/*.pkl
+
 # Python
 __pycache__/
 *.pyc
+
+# environments
+geo_ai/
+.env
