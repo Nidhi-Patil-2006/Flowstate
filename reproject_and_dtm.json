@@ -1,8 +1,8 @@
 {
   "pipeline": [
     {
-      "type": "readers.lSas",
-      "filename": "data/raw/PIRAYANKUPPAM.las"
+      "type": "readers.las",
+      "filename": "data/raw/THANDALAM.las"
     },
     {
       "type": "filters.reprojection",
@@ -11,7 +11,7 @@
     },
     {
       "type": "writers.gdal",
-      "filename": "data/dtm/PIRAYANKUPPAM.las",
+      "filename": "data/dtm/THANDALAM_DTM.tif",
       "resolution": 1.0,
       "radius": 2.0,
       "output_type": "min",
