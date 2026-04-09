@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DTM AI System</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f172a, #020617);
+            color: white;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar h2 {
+            margin-bottom: 20px;
+            color: #38bdf8;
+        }
+
+        .sidebar button {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .main {
+            flex: 1;
+            padding: 30px;
+        }
+
+        button {
+            padding: 12px;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #3b82f6;
+        }
+
+        button:disabled {
+            background: gray;
+        }
+
+        #progressBar {
+            width: 100%;
+            height: 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        #progressFill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #22c55e, #4ade80);
+        }
+
+        #output {
+            background: rgba(0,0,0,0.6);
+            padding: 15px;
+            border-radius: 12px;
+            height: 250px;
+            overflow-y: auto;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>⚡ Pipeline</h2>
+
+        <!-- FULL AUTOMATION -->
+        
+        <!-- PHASE 1 -->
+        <button onclick="runStep('train')">Train Model</button>
+        <button onclick="runStep('predict')">Classify</button>
+        <button onclick="runStep('ground')">Extract Ground</button>
+        <button onclick="runStep('dtm')">Generate DTM</button>
+        <button onclick="runStep('hydrology')">Hydrology</button>
+        <button onclick="runStep('stream_vector')">Stream Vector</button>
+        <button onclick="runStep('burn_streams')">Burn Streams</button>
+
+        <!-- PHASE 2 -->
+        <button onclick="runWaterlogging()">💧 Waterlogging Full</button>
+
+        <button onclick="runStep('hotspots')">Hotspots</button>
+        <button onclick="runStep('drainage')">Drainage</button>
+        <button onclick="runStep('flood_risk')">Flood Risk</button>
+        <button onclick="runStep('stream_order')">Stream Order</button>
+        <button onclick="runStep('hillshade')">Hillshade</button>
+
+    </div>
+
+    <!-- Main -->
+    <div class="main">
+
+        <h1>🚀 DTM + Drainage AI System</h1>
+
+        <!-- Upload -->
+        <input type="file" id="fileInput">
+        <button onclick="uploadFile()">Upload LAS</button>
+
+        <!-- Progress -->
+        <div id="progressBar">
+            <div id="progressFill"></div>
+        </div>
+
+        <!-- Output -->
+        <div id="output">System ready...</div>
+
+        <h3>📂 Outputs</h3>
+        <div id="files"></div>
+
+    </div>
+
+</div>
+
+<script>
+
+function disableButtons(state) {
+    document.querySelectorAll("button").forEach(btn => {
+        btn.disabled = state;
+    });
+}
+
+function updateProgress(val) {
+    document.getElementById("progressFill").style.width = val + "%";
+}
+
+function uploadFile() {
+    let file = document.getElementById("fileInput").files[0];
+
+    let formData = new FormData();
+    formData.append("file", file);
+
+    fetch("/upload", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("output").innerText = data.message;
+    });
+}
+
+function runStep(step) {
+
+    disableButtons(true);
+    updateProgress(30);
+
+    fetch("/run", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({step: step})
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        updateProgress(100);
+        disableButtons(false);
+
+        document.getElementById("output").innerText = data.output;
+        loadFiles();
+    });
+}
+
+function runFull() {
+
+    disableButtons(true);
+    updateProgress(20);
+    document.getElementById("output").innerText = "Running Full Pipeline...\n";
+
+    fetch("/run-full", { method: "POST" })
+    .then(res => res.json())
+    .then(data => {
+
+        updateProgress(100);
+        disableButtons(false);
+
+        document.getElementById("output").innerText = data.output;
+        loadFiles();
+    });
+}
+
+function runWaterlogging() {
+
+    disableButtons(true);
+    updateProgress(20);
+    document.getElementById("output").innerText = "Running Waterlogging Pipeline...\n";
+
+    fetch("/run-waterlogging", { method: "POST" })
+    .then(res => res.json())
+    .then(data => {
+
+        updateProgress(100);
+        disableButtons(false);
+
+        document.getElementById("output").innerText = data.output;
+        loadFiles();
+    });
+}
+
+function loadFiles() {
+
+    fetch("/files")
+    .then(res => res.json())
+    .then(files => {
+
+        let html = "";
+
+        files.forEach(f => {
+            html += `<div>
+                ${f}
+                <button onclick="downloadFile('${f}')">⬇</button>
+            </div>`;
+        });
+
+        document.getElementById("files").innerHTML = html;
+    });
+}
+
+function downloadFile(path) {
+    window.open("/download?path=" + path);
+}
+
+</script>
+
+</body>
+</html>
